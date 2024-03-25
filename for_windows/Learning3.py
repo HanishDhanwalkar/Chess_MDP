@@ -3,16 +3,18 @@ import chess.engine
 import chess.svg
 import cv2
 import numpy as np
-from cairosvg import svg2png
+# from cairosvg import svg2png
 
-A = float(input("A (coeff. of material) = "))
-B = float(input("B (coeff. of central control) = "))
-C = float(input("C (coeff. of piece safety) = "))
-D = float(input("D (coeff. of pawn structure) = "))
-E = float(input("E (coeff. of king safety) = "))
-n = int(input("Number of games = "))
-depth = int(input("depth (no. of turns you want algorithm to think furthur) = "))
+# A = float(input("A (coeff. of material) = "))
+# B = float(input("B (coeff. of central control) = "))
+# C = float(input("C (coeff. of piece safety) = "))
+# D = float(input("D (coeff. of pawn structure) = "))
+# E = float(input("E (coeff. of king safety) = "))
+# n = int(input("Number of games = "))
+# depth = int(input("depth (no. of turns you want algorithm to think furthur) = "))
 man = bool(input("MANUAL (leave it blank if you want automation) = "))
+A, B, C, D, E = 1, 1, 1, 1, 1
+n, depth = 1, 5, 
 
 # Precompute square values for piece placement evaluation
 square_values = {
@@ -86,23 +88,23 @@ def pawn_structure(board):
     return white_pawn_structure + black_pawn_structure
 
 def king_safety(board):
-        # Evaluate the safety of the king
-        king_square = board.king(chess.WHITE) if board.turn == chess.WHITE else board.king(chess.BLACK)
-        attackers = board.attackers(not board.turn, king_square)
-        return -len(attackers)
+    # Evaluate the safety of the king
+    king_square = board.king(chess.WHITE) if board.turn == chess.WHITE else board.king(chess.BLACK)
+    attackers = board.attackers(not board.turn, king_square)
+    return -len(attackers)
 
 def ev_func(board):
     return A * material(board) + B * cent_cont(board) + C * piece_safety(board) + D * pawn_structure(board) + E * king_safety(board)
 
-def dispBoard(board):
-    f = open("pic.svg", "w")
-    a = chess.svg.board(board, flipped=man)
-    f.write(a)
-    f.close()
-    svg2png(url="./pic.svg", write_to="./pic.png")
-    image = cv2.imread("./pic.png")
-    cv2.imshow("image window", image)
-    cv2.waitKey(1)  # Wait for a short duration to display image
+# def dispBoard(board):
+#     f = open("pic.svg", "w")
+#     a = chess.svg.board(board, flipped=man)
+#     f.write(a)
+#     f.close()
+#     svg2png(url="./pic.svg", write_to="./pic.png")
+#     image = cv2.imread("./pic.png")
+#     cv2.imshow("image window", image)
+#     cv2.waitKey(1)  # Wait for a short duration to display image
 
 def generateMove(board, count=1):
     if count == depth:
@@ -140,13 +142,14 @@ def generateMove(board, count=1):
 def simple_terminal_engine():
     board = chess.Board()
     state_list = [board]
-    engine = chess.engine.SimpleEngine.popen_uci(r"stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci("for_windows\stockfish-windows-x86-64\stockfish\stockfish-windows-x86-64.exe")
     while True:
         action = generateMove(board)
+        print(action)
         board.push_san(str(action[0]))
         print("Engine move : ", action[0])
         print(board)
-        dispBoard(board)
+        # dispBoard(board)
         if board.is_game_over():
             state_list.append(board.result())
             break
@@ -164,7 +167,7 @@ def simple_terminal_engine():
             board.push(stock_move.move)
             state_list.append(board)
         print(board)
-        dispBoard(board)
+        # dispBoard(board)
         if board.is_game_over():
             state_list.append(board.result())
             break
